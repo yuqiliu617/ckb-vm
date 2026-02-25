@@ -85,4 +85,5 @@ $RISCV_AS -o zero_address.o zero_address.S && $RISCV_LD -T zero_address.lds -o z
 $RISCV_AS -o mop_jump_rel_version1_bug.o mop_jump_rel_version1_bug.S && $RISCV_LD -o mop_jump_rel_version1_bug mop_jump_rel_version1_bug.o && rm mop_jump_rel_version1_bug.o
 $RISCV_AS -o mop_jump_rel_version1_reg_not_updated_bug.o mop_jump_rel_version1_reg_not_updated_bug.S && $RISCV_LD -o mop_jump_rel_version1_reg_not_updated_bug mop_jump_rel_version1_reg_not_updated_bug.o && rm mop_jump_rel_version1_reg_not_updated_bug.o
 $RISCV_AS -o mop_jump_abs_version1_reg_not_updated_bug.o mop_jump_abs_version1_reg_not_updated_bug.S && $RISCV_LD -o mop_jump_abs_version1_reg_not_updated_bug mop_jump_abs_version1_reg_not_updated_bug.o && rm mop_jump_abs_version1_reg_not_updated_bug.o
+$RISCV_AS -march=rv64imc -o division_microbench.o division_microbench.S && $RISCV_LD -o division_microbench division_microbench.o && rm division_microbench.o
 echo "done"
