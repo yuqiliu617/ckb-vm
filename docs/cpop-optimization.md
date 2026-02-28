@@ -78,6 +78,25 @@ Run:
 cargo test --features=asm test_cpop_microbench -- --nocapture
 ```
 
+### Results
+
+Benchmark environment:
+
+- Aliyun g8y instance
+- 1 YiTan 710 core
+
+Measured result (100 runs, 1M iterations x 8 `cpop`/`cpopw` ops):
+
+- Before optimization:
+  `CPOP microbench: average=4.073032ms, median=4.005455ms, min=3.927314ms, max=5.778662ms`
+- After optimization:
+  `CPOP microbench: average=2.475213ms, median=2.430809ms, min=2.313629ms, max=3.942755ms`
+
+Observed improvement:
+
+- Average latency: `4.073032ms -> 2.475213ms` (`~1.646x` faster, `~39.23%` reduction)
+- Median latency: `4.005455ms -> 2.430809ms` (`~1.648x` faster, `~39.31%` reduction)
+
 ## Correctness Coverage
 
 - Existing functional test: `test_pcnt` in [`tests/test_b_extension.rs`](../tests/test_b_extension.rs), comparing `_rv64_pcnt/_rv32_pcnt` against software reference popcount.
