@@ -485,12 +485,10 @@ ckb_vm_x64_execute:
   DECODE_R
   ldr RS1, REGISTER_ADDRESS(RS1)
   ldr RS2, REGISTER_ADDRESS(RS2)
-  mov RS1w, RS1w
-  mov RS2w, RS2w
-  udiv TEMP1, RS1, RS2
+  udiv TEMP1w, RS1w, RS2w
   sxtw TEMP1, TEMP1w
   mov TEMP2, UINT64_MAX
-  cmp RS2, 0
+  cmp RS2w, 0
   csel TEMP1, TEMP2, TEMP1, eq
   WRITE_RD(TEMP1)
   NEXT_INST
@@ -498,12 +496,10 @@ ckb_vm_x64_execute:
   DECODE_R
   ldr RS1, REGISTER_ADDRESS(RS1)
   ldr RS2, REGISTER_ADDRESS(RS2)
-  sxtw RS1, RS1w
-  sxtw RS2, RS2w
-  sdiv TEMP1, RS1, RS2
+  sdiv TEMP1w, RS1w, RS2w
   sxtw TEMP1, TEMP1w
   mov TEMP2, UINT64_MAX
-  cmp RS2, 0
+  cmp RS2w, 0
   csel RS1, TEMP2, TEMP1, eq
   WRITE_RD(RS1)
   NEXT_INST
