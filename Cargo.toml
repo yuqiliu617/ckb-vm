@@ -47,5 +47,20 @@ name = "bits_benchmark"
 path = "benches/bits_benchmark.rs"
 harness = false
 
+[[bench]]
+name = "division_benchmark"
+path = "benches/division_benchmark.rs"
+harness = false
+
+[[bench]]
+name = "mulhsu_benchmark"
+path = "benches/mulhsu_benchmark.rs"
+harness = false
+
+[[bench]]
+name = "cpop_benchmark"
+path = "benches/cpop_benchmark.rs"
+harness = false
+
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(has_asm)'] }
