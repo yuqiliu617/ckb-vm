@@ -67,35 +67,26 @@ This removes a long integer instruction chain and constant loads from the hot pa
 
 ### Rust harness
 
-[`tests/test_cpop_perf.rs`](../tests/test_cpop_perf.rs):
-
-- 1 warm-up run + 5 timed runs
-- Reports median/min/max wall-clock duration
+[`benches/cpop_benchmark.rs`](../benches/cpop_benchmark.rs) — Criterion benchmark; reports mean, median, standard deviation, and 95% confidence intervals.
 
 Run:
 
 ```bash
-cargo test --features=asm test_cpop_microbench -- --nocapture
+cargo bench --features=asm cpop_microbench
 ```
 
 ### Results
 
-Benchmark environment:
+Benchmark environment: Aliyun `ecs.g8y.small`, YiTian 710 (1 core), 4 GB RAM
 
-- Aliyun g8y instance
-- 1 YiTan 710 core
+|         | Before                       | After                        | Change                       |
+| ------- | ---------------------------- | ---------------------------- | ---------------------------- |
+| Mean    | [4.019, **4.045**, 4.076] ms | [2.303, **2.313**, 2.326] ms | [−43.3%, **−42.8%**, −42.3%] |
+| Median  | [3.970, **3.974**, 3.977] ms | [2.290, **2.292**, 2.295] ms | [−42.4%, **−42.3%**, −42.2%] |
+| Std Dev | 0.463 ms                     | 0.182 ms                     | −60.7%                       |
+| MAD     | 39.1 µs                      | 28.6 µs                      | −26.9%                       |
 
-Measured result (100 runs, 1M iterations x 8 `cpop`/`cpopw` ops):
-
-- Before optimization:
-  `CPOP microbench: average=4.073032ms, median=4.005455ms, min=3.927314ms, max=5.778662ms`
-- After optimization:
-  `CPOP microbench: average=2.475213ms, median=2.430809ms, min=2.313629ms, max=3.942755ms`
-
-Observed improvement:
-
-- Average latency: `4.073032ms -> 2.475213ms` (`~1.646x` faster, `~39.23%` reduction)
-- Median latency: `4.005455ms -> 2.430809ms` (`~1.648x` faster, `~39.31%` reduction)
+Mean latency drops from 4.045 ms to 2.313 ms (**1.75x faster**, 42.8% reduction). Median drops by the same margin. Both the standard deviation (−60.7%) and MAD (−26.9%) narrow substantially, reflecting the shorter and more deterministic SIMD sequence. The tight 95% confidence intervals on mean and median confirm the improvement is statistically robust.
 
 ## Correctness Coverage
 

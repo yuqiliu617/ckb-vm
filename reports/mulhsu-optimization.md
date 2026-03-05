@@ -173,32 +173,34 @@ Changes:
 
 `tests/programs/mulhsu_microbench.S` — 1M chained `mulhsu` instructions (125K loop iterations × 8 unrolled). The first iteration uses the initialized negative value (`-12345678`); subsequent ones chain through `t2` as RS1. Since `mulhsu(negative, large_positive)` always produces a negative high word, all iterations exercise the negative-RS1 path.
 
-`tests/test_mulhsu_perf.rs` — 1 warm-up run + 1000 timed runs, reports average/median/min/max wall-clock time.
+`benches/mulhsu_benchmark.rs` — Criterion benchmark; reports mean, median, standard deviation, and 95% confidence intervals.
 
 ```bash
-cargo test --features=asm --release test_mulhsu_microbench -- --nocapture
+cargo bench --features=asm mulhsu_microbench
 ```
 
 ### x86-64 Results
 
-|                    | Before   | After    | Change | Speed increase |
-| ------------------ | -------- | -------- | ------ | -------------- |
-| Average            | 3.759 ms | 3.660 ms | −2.6%  | +2.7%          |
-| Median             | 3.752 ms | 3.646 ms | −2.8%  | +2.9%          |
-| Min                | 3.530 ms | 3.452 ms | −2.2%  | +2.3%          |
-| Max                | 5.359 ms | 4.582 ms | −14.5% | +17.0%         |
-| Spread (max − min) | 1.829 ms | 1.130 ms | −38.2% |                |
+Benchmark environment: Lenovo Legion R9000P 2021H, 16 processors (AMD Ryzen 7 5800H), 64 GB RAM
 
-Average and median speed improve by approximately **2.8%**, reflecting the reduced instruction count and elimination of the memory load on the critical (negative-RS1) path.
+|         | Before                       | After                        | Change                    |
+| ------- | ---------------------------- | ---------------------------- | ------------------------- |
+| Mean    | [3.894, **3.904**, 3.916] ms | [3.788, **3.796**, 3.805] ms | [−3.1%, **−2.8%**, −2.4%] |
+| Median  | [3.855, **3.857**, 3.859] ms | [3.767, **3.769**, 3.772] ms | [−2.4%, **−2.3%**, −2.2%] |
+| Std Dev | 0.183 ms                     | 0.138 ms                     | −24.6%                    |
+| MAD     | 25.4 µs                      | 33.8 µs                      | +33.1%                    |
+
+Mean and median improve by approximately **2.8%** and **2.3%** respectively, reflecting the reduced instruction count and elimination of the memory load on the critical (negative-RS1) path.
 
 ### AArch64 Results
 
-|                    | Before    | After     | Change | Speed increase |
-| ------------------ | --------- | --------- | ------ | -------------- |
-| Average            | 4.316 ms  | 3.955 ms  | −8.4%  | +9.1%          |
-| Median             | 3.982 ms  | 3.694 ms  | −7.2%  | +7.8%          |
-| Min                | 3.845 ms  | 3.563 ms  | −7.3%  | +7.9%          |
-| Max                | 12.021 ms | 11.513 ms | −4.2%  | +4.4%          |
-| Spread (max − min) | 8.176 ms  | 7.950 ms  | −2.8%  |                |
+Benchmark environment: Aliyun `ecs.g8y.small`, YiTian 710 (1 core), 4 GB RAM
 
-Average and median speed improve by **8-9%**, a stronger gain than x86-64. This is consistent with AArch64 receiving more changes beyond the register allocation fix: hoisting the RS2 load eliminates one memory access on the positive path, and `mvn` + `cinc` each replace a two-instruction sequence with one.
+|         | Before                       | After                        | Change                    |
+| ------- | ---------------------------- | ---------------------------- | ------------------------- |
+| Mean    | [3.965, **3.982**, 4.002] ms | [3.649, **3.664**, 3.682] ms | [−8.6%, **−8.0%**, −7.4%] |
+| Median  | [3.934, **3.938**, 3.941] ms | [3.628, **3.630**, 3.632] ms | [−7.9%, **−7.8%**, −7.7%] |
+| Std Dev | 0.301 ms                     | 0.265 ms                     | −11.9%                    |
+| MAD     | 33.1 µs                      | 31.8 µs                      | −3.9%                     |
+
+Mean and median improve by approximately **8%**, a stronger gain than x86-64. This is consistent with AArch64 receiving more changes beyond the register allocation fix: hoisting the RS2 load eliminates one memory access on the positive path, and `mvn` + `cinc` each replace a two-instruction sequence with one. The narrow 95% confidence intervals confirm the result is statistically significant.

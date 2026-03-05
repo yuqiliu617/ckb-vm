@@ -93,41 +93,46 @@ DIVUW follows the same pattern, replacing `mov RS1w, RS1w` + `mov RS2w, RS2w` + 
 
 [div_microbench.S](../tests/programs/div_microbench.S) and [divw_microbench.S](../tests/programs/divw_microbench.S) — 1M chained `div` and `divw` instructions (125K iterations × 8 unrolled). Chained dependency serializes divisions to measure handler latency rather than throughput.
 
-[test_division_perf.rs](../tests/test_division_perf.rs) — 1 warm-up run + 1000 timed runs, reports average/median/min/max wall-clock time.
+[benches/division_benchmark.rs](../benches/division_benchmark.rs) — Criterion benchmark; reports mean, median, standard deviation, and 95% confidence intervals.
 
 ```bash
-cargo test --features=asm test_div_microbench -- --nocapture
-cargo test --features=asm test_divw_microbench -- --nocapture
+cargo bench --features=asm div_microbench
+cargo bench --features=asm divw_microbench
 ```
 
 ### Results
 
-Benchmark environment:
-
-- Aliyun g8y instance
-- 1 YiTan 710 core
-
-Measured result (1000 runs, 125K iterations x 8 divs):
+Benchmark environment: Aliyun `ecs.g8y.small`, YiTian 710 (1 core), 4 GB RAM
 
 **`div_microbench`** (measures Optimization 1: `csel`):
-- Before: `average=3.920017ms, median=3.537173ms, min=3.420233ms, max=11.047261ms`
-- After:  `average=3.785128ms, median=3.719614ms, min=3.625254ms, max=9.649655ms`
 
-**`divw_microbench`** (measures Optimization 2: 32-bit division):
-- Before: `average=4.280946ms, median=3.846714ms, min=3.700293ms, max=13.51235ms`
-- After:  `average=3.625833ms, median=3.563473ms, min=3.469253ms, max=9.682356ms`
+|         | Before                       | After                        | Change                    |
+| ------- | ---------------------------- | ---------------------------- | ------------------------- |
+| Mean    | [3.544, **3.575**, 3.613] ms | [3.722, **3.738**, 3.758] ms | [+3.4%, **+4.6%**, +5.6%] |
+| Median  | [3.485, **3.488**, 3.491] ms | [3.689, **3.692**, 3.694] ms | [+5.7%, **+5.8%**, +5.9%] |
+| Std Dev | 0.557 ms                     | 0.285 ms                     | −48.9%                    |
+| MAD     | 38.3 µs                      | 34.3 µs                      | −10.3%                    |
+
+**`divw_microbench`** (measures Optimization 2: 32-bit division; before = post-`csel`, after = post-32-bit-div):
+
+|         | Before                       | After                        | Change                    |
+| ------- | ---------------------------- | ---------------------------- | ------------------------- |
+| Mean    | [3.835, **3.852**, 3.874] ms | [3.586, **3.608**, 3.634] ms | [−7.1%, **−6.3%**, −5.5%] |
+| Median  | [3.801, **3.803**, 3.806] ms | [3.547, **3.549**, 3.552] ms | [−6.8%, **−6.7%**, −6.6%] |
+| Std Dev | 0.314 ms                     | 0.394 ms                     | +25.6%                    |
+| MAD     | 35.5 µs                      | 34.5 µs                      | −2.8%                     |
 
 ### Interpretation
 
-**`csel` (Optimization 1):** Average latency drops slightly, and the maximum drops by 12.6% and the min/median shift upward slightly. The pattern is consistent with branch-misprediction elimination: rare slow outliers are removed, while the common fast path cost is basically unchanged.
+**`csel` (Optimization 1):** The 5–6% regression is expected: `csel` adds `mov TEMP2, UINT64_MAX` to the common (non-zero divisor) path, which the branched version reaches without that instruction. The standard deviation nearly halves (−48.9%) because `csel` removes the rare-but-expensive branch-misprediction tail. The benefit of `csel` materializes in production code where the divisor can be zero unpredictably.
 
-**32-bit division (Optimization 2):** Average latency improves by 15.3% and the maximum drops by 28.4%. Unlike the `csel` change, this optimization removes instructions from the unconditional fast path, producing a genuine speed improvement across all runs.
+**32-bit division (Optimization 2):** Median improves by 6.7% and mean by 6.3%. Replacing the two `sxtw` instructions with native 32-bit `sdiv`/`udiv` shortens the unconditional fast path, producing a clear speed improvement across all runs.
 
 ---
 
 ## RISC-V Division Edge Cases
 
-| Condition    | `div`   | `divu`   | `divw`    | `divuw`  | `rem`    | `remu`   |
-| ------------ | ------- | -------- | --------- | -------- | -------- | -------- |
-| Divisor = 0  | -1      | 2^64 − 1 | -1        | 2^64 − 1 | dividend | dividend |
-| INT_MIN / -1 | INT_MIN | N/A      | INT32_MIN | N/A      | 0        | N/A      |
+| Condition    | `div`   | `divu`       | `divw`    | `divuw`    | `rem`    | `remu`   |
+| ------------ | ------- | ------------ | --------- | ---------- | -------- | -------- |
+| Divisor = 0  | -1      | $2^{64} − 1$ | -1        | $2^{64}-1$ | dividend | dividend |
+| INT_MIN / -1 | INT_MIN | N/A          | INT32_MIN | N/A        | 0        | N/A      |
