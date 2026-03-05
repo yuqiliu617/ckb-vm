@@ -52,6 +52,7 @@ $RISCV_AS -o mop_wide_div_zero.o mop_wide_div_zero.S && $RISCV_LD -o mop_wide_di
 $RISCV_GCC -o mop_wide_divide mop_wide_divide.c
 $RISCV_AS -o mop_wide_mul_zero.o mop_wide_mul_zero.S && $RISCV_LD -o mop_wide_mul_zero mop_wide_mul_zero.o && rm mop_wide_mul_zero.o
 $RISCV_GCC -o mop_wide_multiply mop_wide_multiply.c
+$RISCV_GCC -o divw64 divw.c
 $RISCV_AS -o mulw.o mulw.S && $RISCV_LD -o mulw64 mulw.o && rm mulw.o
 # SKIP: nop
 # SKIP: op_rvc_slli_crash_32
