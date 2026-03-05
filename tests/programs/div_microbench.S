@@ -14,10 +14,10 @@ _start:
     div t2, t2, t1
     div t2, t2, t1
     div t2, t2, t1
-    div t2, t2, t1
-    div t2, t2, t1
-    div t2, t2, t1
-    div t2, t2, t1
+    divu t2, t0, t1
+    divu t2, t2, t1
+    divu t2, t2, t1
+    divu t2, t2, t1
 
     addi a0, a0, -8
     bnez a0, .loop_normal
