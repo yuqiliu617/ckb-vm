@@ -909,18 +909,15 @@ ckb_vm_x64_execute:
   DECODE_R
   PUSH_RD_IF_RAX
   PUSH_RD_IF_RDX
-  PUSH_RS1_IF_RAX
-  PUSH_RS1_IF_RDX
   movq REGISTER_ADDRESS(RS1), %rax
   test %rax, %rax
-  jns .mulhsu_branch1
+  jns .mulhsu_positive_branch
+  movq %rax, TEMP2
   neg %rax
   mulq REGISTER_ADDRESS(RS2r)
   xor $-1, %rdx
   movq %rdx, TEMP1
-  POP_RS1_IF_RDX
-  POP_RS1_IF_RAX
-  movq REGISTER_ADDRESS(RS1), %rax
+  movq TEMP2, %rax
   imulq REGISTER_ADDRESS(RS2r)
   test %rax, %rax
   setz %al
@@ -930,11 +927,9 @@ ckb_vm_x64_execute:
   POP_RD_IF_RAX
   WRITE_RD(TEMP1)
   NEXT_INST
-.mulhsu_branch1:
+.mulhsu_positive_branch:
   mulq REGISTER_ADDRESS(RS2r)
   movq %rdx, TEMP1
-  POP_RS1_IF_RDX
-  POP_RS1_IF_RAX
   POP_RD_IF_RDX
   POP_RD_IF_RAX
   WRITE_RD(TEMP1)
