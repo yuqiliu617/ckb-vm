@@ -52,6 +52,7 @@ $RISCV_AS -o mop_wide_div_zero.o mop_wide_div_zero.S && $RISCV_LD -o mop_wide_di
 $RISCV_GCC -o mop_wide_divide mop_wide_divide.c
 $RISCV_AS -o mop_wide_mul_zero.o mop_wide_mul_zero.S && $RISCV_LD -o mop_wide_mul_zero mop_wide_mul_zero.o && rm mop_wide_mul_zero.o
 $RISCV_GCC -o mop_wide_multiply mop_wide_multiply.c
+$RISCV_GCC -o divw64 divw.c
 $RISCV_AS -o mulw.o mulw.S && $RISCV_LD -o mulw64 mulw.o && rm mulw.o
 # SKIP: nop
 # SKIP: op_rvc_slli_crash_32
@@ -59,6 +60,7 @@ $RISCV_AS -o mulw.o mulw.S && $RISCV_LD -o mulw64 mulw.o && rm mulw.o
 # SKIP: op_rvc_srli_crash_32
 $RISCV_GCC -o pause_resume pause_resume.c
 # TODO: pcnt
+$RISCV_AS -march=rv64imac_zbb -o cpop_microbench.o cpop_microbench.S && $RISCV_LD -o cpop_microbench cpop_microbench.o && rm cpop_microbench.o
 $RISCV_AS -o read_at_boundary.o read_at_boundary.S && $RISCV_LD -o read_at_boundary64 read_at_boundary.o && rm read_at_boundary.o
 $RISCV_AS -o read_memory.o read_memory.S && $RISCV_LD -o read_memory read_memory.o && rm read_memory.o
 $RISCV_GCC -o reset_callee reset_callee.c
@@ -86,4 +88,6 @@ $RISCV_AS -o mop_jump_rel_version1_bug.o mop_jump_rel_version1_bug.S && $RISCV_L
 $RISCV_AS -o mop_jump_rel_version1_reg_not_updated_bug.o mop_jump_rel_version1_reg_not_updated_bug.S && $RISCV_LD -o mop_jump_rel_version1_reg_not_updated_bug mop_jump_rel_version1_reg_not_updated_bug.o && rm mop_jump_rel_version1_reg_not_updated_bug.o
 $RISCV_AS -o mop_jump_abs_version1_reg_not_updated_bug.o mop_jump_abs_version1_reg_not_updated_bug.S && $RISCV_LD -o mop_jump_abs_version1_reg_not_updated_bug mop_jump_abs_version1_reg_not_updated_bug.o && rm mop_jump_abs_version1_reg_not_updated_bug.o
 $RISCV_AS -march=rv64imc -o mulhsu_microbench.o mulhsu_microbench.S && $RISCV_LD -o mulhsu_microbench mulhsu_microbench.o && rm mulhsu_microbench.o
+$RISCV_AS -march=rv64imc -o div_microbench.o div_microbench.S && $RISCV_LD -o div_microbench div_microbench.o && rm div_microbench.o
+$RISCV_AS -march=rv64imc -o divw_microbench.o divw_microbench.S && $RISCV_LD -o divw_microbench divw_microbench.o && rm divw_microbench.o
 echo "done"
