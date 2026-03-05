@@ -60,6 +60,7 @@ $RISCV_AS -o mulw.o mulw.S && $RISCV_LD -o mulw64 mulw.o && rm mulw.o
 # SKIP: op_rvc_srli_crash_32
 $RISCV_GCC -o pause_resume pause_resume.c
 # TODO: pcnt
+$RISCV_AS -march=rv64imac_zbb -o cpop_microbench.o cpop_microbench.S && $RISCV_LD -o cpop_microbench cpop_microbench.o && rm cpop_microbench.o
 $RISCV_AS -o read_at_boundary.o read_at_boundary.S && $RISCV_LD -o read_at_boundary64 read_at_boundary.o && rm read_at_boundary.o
 $RISCV_AS -o read_memory.o read_memory.S && $RISCV_LD -o read_memory read_memory.o && rm read_memory.o
 $RISCV_GCC -o reset_callee reset_callee.c
