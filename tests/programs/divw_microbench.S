@@ -6,18 +6,18 @@
 _start:
     li a0, 1000000          # Iteration count (1 million)
     li t0, 12345678         # Dividend
-    li t1, -3               # Divisor (non-zero, common path)
+    li t1, -13              # Divisor (non-zero, common path)
 
 .loop_normal:
     # 8x unrolled to reduce loop overhead
     divw t2, t0, t1
     divw t2, t2, t1
-    divw t2, t2, t1
-    divw t2, t2, t1
     divuw t2, t0, t1
     divuw t2, t2, t1
-    divuw t2, t2, t1
-    divuw t2, t2, t1
+    remw t2, t0, t1
+    remw t2, t2, t1
+    remuw t2, t0, t1
+    remuw t2, t2, t1
 
     addi a0, a0, -8
     bnez a0, .loop_normal
