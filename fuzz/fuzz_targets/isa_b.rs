@@ -1,41 +1,11 @@
 #![no_main]
+mod utils;
 use ckb_vm::{CoreMachine, SupportMachine};
 use libfuzzer_sys::fuzz_target;
 use spike_sys::Spike;
-use std::collections::VecDeque;
-
-struct Deque {
-    n: VecDeque<u8>,
-}
-
-impl Deque {
-    fn new(data: [u8; 512]) -> Self {
-        Self {
-            n: VecDeque::from(data),
-        }
-    }
-
-    fn u8(&mut self) -> u8 {
-        let r = self.n.pop_front().unwrap();
-        self.n.push_back(r);
-        r
-    }
-
-    fn u32(&mut self) -> u32 {
-        let mut r = [0u8; 4];
-        r.fill_with(|| self.u8());
-        u32::from_le_bytes(r)
-    }
-
-    fn u64(&mut self) -> u64 {
-        let mut r = [0u8; 8];
-        r.fill_with(|| self.u8());
-        u64::from_le_bytes(r)
-    }
-}
 
 fuzz_target!(|data: [u8; 512]| {
-    let mut deque = Deque::new(data);
+    let mut deque = utils::Deque::new(data);
     let spike = Spike::new(4 * 1024 * 1024 - 4096);
     let ckb_vm_isa = ckb_vm::ISA_IMC | ckb_vm::ISA_A | ckb_vm::ISA_B;
     let ckb_vm_version = ckb_vm::machine::VERSION2;
@@ -118,11 +88,5 @@ fuzz_target!(|data: [u8; 512]| {
         ckb_vm::instructions::execute_instruction(insn, &mut ckb_vm_int).unwrap();
         ckb_vm::instructions::execute_instruction(insn, &mut ckb_vm_asm).unwrap();
     }
-    for i in 0..32 {
-        let spike_reg = spike.get_reg(i).unwrap();
-        let ckb_vm_int_reg = ckb_vm_int.registers()[i as usize];
-        let ckb_vm_asm_reg = ckb_vm_asm.registers()[i as usize];
-        assert_eq!(spike_reg, ckb_vm_int_reg);
-        assert_eq!(spike_reg, ckb_vm_asm_reg);
-    }
+    utils::assert_registers_eq(&spike, ckb_vm_int.registers(), ckb_vm_asm.registers());
 });
