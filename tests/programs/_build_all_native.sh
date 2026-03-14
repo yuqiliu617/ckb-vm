@@ -114,4 +114,5 @@ asm_link mop_jump_abs_version1_reg_not_updated_bug
 asm_link -march=rv64imc mulhsu_microbench
 asm_link -march=rv64imc div_microbench
 asm_link -march=rv64imc divw_microbench
+asm_link -march=rv64imc_zba shadd_microbench
 echo "done"

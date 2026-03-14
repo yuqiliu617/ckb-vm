@@ -62,5 +62,10 @@ name = "cpop_benchmark"
 path = "benches/cpop_benchmark.rs"
 harness = false
 
+[[bench]]
+name = "shadd_benchmark"
+path = "benches/shadd_benchmark.rs"
+harness = false
+
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(has_asm)'] }
